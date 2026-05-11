@@ -1,0 +1,127 @@
+<div class="page-container animate-fade-in">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Multi-agent AI portfolio intelligence overview</p>
+    </div>
+    <select class="form-input" [ngModel]="state.selectedPortfolioId()" (ngModelChange)="state.setPortfolio($event); onPortfolioChange()">
+      @for (p of portfolios; track p.id) {
+        <option [value]="p.id">{{ p.name }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- KPI Cards -->
+  @if (summary) {
+    <div class="kpi-grid">
+      @for (kpi of kpis; track kpi.label) {
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon" [style.background]="kpi.color + '12'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" [attr.stroke]="kpi.color" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              @switch (kpi.icon) {
+                @case ('activity') { <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/> }
+                @case ('shield') { <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/> }
+                @case ('leaf') { <path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/> }
+                @case ('target') { <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/> }
+              }
+            </svg>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">{{ kpi.label }}</span>
+            <span class="kpi-value">{{ kpi.value | number:'1.0-1' }}</span>
+            @if (getDelta(kpi) !== null) {
+              <span class="kpi-delta" [class.positive]="getDelta(kpi)! > 0" [class.negative]="getDelta(kpi)! < 0">
+                {{ getDelta(kpi)! > 0 ? '+' : '' }}{{ getDelta(kpi)! | number:'1.1-1' }}
+              </span>
+            }
+            @if (kpi.subtitle) {
+              <span class="kpi-subtitle">{{ kpi.subtitle }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="secondary-kpi-grid">
+      @for (kpi of secondaryKpis; track kpi.label) {
+        <div class="kpi-card glass-card">
+          <div class="kpi-content">
+            <span class="kpi-label">{{ kpi.label }}</span>
+            <span class="kpi-value" [style.color]="kpi.color">{{ kpi.value | number:'1.0-1' }}{{ kpi.suffix || '' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="exec-summary">
+      <div class="exec-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+      </div>
+      <div class="exec-content">
+        <h3>AI Executive Summary</h3>
+        <p>{{ summary.summaryText }}</p>
+        <div class="exec-meta">
+          <span>Risk Outlook: <strong [class]="summary.riskOutlook === 'MODERATE' ? 'text-amber' : 'text-blue'">{{ summary.riskOutlook }}</strong></span>
+          <span>Market: <strong class="text-blue">{{ summary.marketCondition }}</strong></span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <div class="chart-card glass-card">
+      <h3 class="card-title">Allocation vs Target</h3>
+      <div class="chart-container">
+        <canvas #allocationCanvas></canvas>
+      </div>
+    </div>
+    <div class="chart-card glass-card">
+      <h3 class="card-title">Sector Exposure</h3>
+      <div class="chart-container-sm">
+        <canvas #performanceCanvas></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drift Alerts -->
+  @if (drift && drift.alerts.length > 0) {
+    <div class="glass-card card-section">
+      <h3 class="card-title">Drift Alerts</h3>
+      <div class="alerts-list">
+        @for (alert of drift.alerts; track alert) {
+          <div class="alert-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>{{ alert }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Agent Status -->
+  <div class="glass-card card-section">
+    <h3 class="card-title">Agent Status Overview</h3>
+    <div class="agents-grid">
+      @for (agent of agents; track agent.agentId) {
+        <div class="agent-row">
+          <div class="agent-info">
+            <span class="agent-name">{{ agent.agentName }}</span>
+            <span class="status-badge" [ngClass]="getAgentStatusClass(agent.status)">{{ agent.status }}</span>
+          </div>
+          <div class="agent-metrics">
+            <div class="agent-metric">
+              <span class="metric-label">Confidence</span>
+              <div class="confidence-bar">
+                <div class="confidence-fill" [style.width.%]="agent.confidenceScore * 100" [style.background]="agent.confidenceScore > 0.8 ? '#10b981' : agent.confidenceScore > 0.6 ? '#f59e0b' : '#ef4444'"></div>
+              </div>
+            </div>
+            <span class="agent-time">{{ agent.executionTimeMs }}ms</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

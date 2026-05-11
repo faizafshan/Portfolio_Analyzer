@@ -1,0 +1,144 @@
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Portfolio Analysis</h1>
+      <p class="page-subtitle">{{ portfolio?.name }} — {{ portfolio?.clientName }}</p>
+    </div>
+    @if (portfolio) {
+      <div class="header-badges">
+        <span class="status-badge badge-info">{{ portfolio.riskProfile }}</span>
+        <span class="portfolio-value">{{ portfolio.totalValue | currency:'USD':'symbol':'1.0-0' }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Overview Stats -->
+  @if (portfolio) {
+    <div class="stats-row">
+      <div class="stat-card glass-card">
+        <span class="label-xs">Health Score</span>
+        <span class="stat-value text-blue">{{ portfolio.healthScore }}</span>
+      </div>
+      <div class="stat-card glass-card">
+        <span class="label-xs">Compliance</span>
+        <span class="stat-value text-emerald">{{ portfolio.complianceScore }}</span>
+      </div>
+      <div class="stat-card glass-card">
+        <span class="label-xs">ESG Score</span>
+        <span class="stat-value text-green">{{ portfolio.esgScore }}</span>
+      </div>
+      <div class="stat-card glass-card">
+        <span class="label-xs">Actual Return</span>
+        <span class="stat-value text-purple">{{ portfolio.actualReturn }}%</span>
+      </div>
+      <div class="stat-card glass-card">
+        <span class="label-xs">Benchmark</span>
+        <span class="stat-value text-amber">{{ portfolio.benchmarkReturn }}%</span>
+      </div>
+    </div>
+  }
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="glass-card chart-panel">
+      <h3 class="card-title">Portfolio Radar</h3>
+      <div class="chart-box"><canvas #radarCanvas></canvas></div>
+    </div>
+    <div class="glass-card chart-panel">
+      <h3 class="card-title">Sector Exposure</h3>
+      <div class="chart-box"><canvas #sectorCanvas></canvas></div>
+    </div>
+  </div>
+
+  <!-- Holdings Table -->
+  @if (portfolio) {
+    <div class="glass-card card-section">
+      <h3 class="card-title">Holdings ({{ portfolio.holdings.length }})</h3>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Symbol</th><th>Name</th><th>Sector</th><th>Weight</th><th>Target</th><th>Day Δ</th><th>ESG</th><th>Beta</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (h of portfolio.holdings; track h.symbol) {
+              <tr>
+                <td class="font-mono font-semibold">{{ h.symbol }}</td>
+                <td>{{ h.name }}</td>
+                <td><span class="text-muted">{{ h.sector }}</span></td>
+                <td>{{ h.weight | number:'1.1-1' }}%</td>
+                <td>{{ h.targetWeight | number:'1.1-1' }}%</td>
+                <td [class]="h.dayChange >= 0 ? 'text-emerald' : 'text-red'">{{ h.dayChange >= 0 ? '+' : '' }}{{ h.dayChange | number:'1.2-2' }}%</td>
+                <td>{{ h.esgScore | number:'1.0-0' }}</td>
+                <td>{{ h.beta | number:'1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- Drift Analysis -->
+  @if (drift) {
+    <div class="glass-card card-section">
+      <div class="card-header-row">
+        <h3 class="card-title">Drift Analysis</h3>
+        <span class="status-badge" [ngClass]="getSeverityClass(drift.severity)">{{ drift.severity }}</span>
+      </div>
+      <div class="drift-items">
+        @for (item of drift.driftItems; track item.symbol) {
+          <div class="drift-row">
+            <div class="drift-symbol">
+              <span class="font-mono font-semibold">{{ item.symbol }}</span>
+              <span class="text-muted text-xs">{{ item.sector }}</span>
+            </div>
+            <div class="drift-bar-container">
+              <div class="drift-bar" [style.width.%]="Math.min(Math.abs(item.driftPercent) * 10, 100)" [class]="item.driftPercent > 0 ? 'bar-over' : 'bar-under'"></div>
+            </div>
+            <span class="drift-pct" [class]="item.driftPercent > 0 ? 'text-red' : 'text-emerald'">{{ item.driftPercent > 0 ? '+' : '' }}{{ item.driftPercent | number:'1.1-1' }}%</span>
+            <span class="status-badge" [ngClass]="getSeverityClass(item.severity)">{{ item.severity }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Compliance -->
+  @if (compliance) {
+    <div class="glass-card card-section">
+      <div class="card-header-row">
+        <h3 class="card-title">Compliance Check</h3>
+        <span class="status-badge" [ngClass]="getComplianceClass(compliance.overallStatus)">{{ compliance.overallStatus }}</span>
+      </div>
+      @if (compliance.violations.length > 0) {
+        <div class="violations-list">
+          @for (v of compliance.violations; track v.ruleId) {
+            <div class="violation-item">
+              <div class="violation-header">
+                <span class="status-badge" [ngClass]="getSeverityClass(v.severity)">{{ v.severity }}</span>
+                <span class="violation-name">{{ v.ruleName }}</span>
+              </div>
+              <p class="violation-desc">{{ v.description }}</p>
+              <div class="violation-meta">
+                <span>Current: <strong>{{ v.currentValue }}</strong></span>
+                <span>Threshold: <strong>{{ v.threshold }}</strong></span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+      @if (compliance.passedChecks.length > 0) {
+        <div class="passed-checks">
+          @for (check of compliance.passedChecks; track check) {
+            <div class="check-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>{{ check }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

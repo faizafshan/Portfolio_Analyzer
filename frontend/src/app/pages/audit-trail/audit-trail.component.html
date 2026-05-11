@@ -1,0 +1,90 @@
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Audit Trail</h1>
+      <p class="page-subtitle">Complete decision trail with traceable AI reasoning</p>
+    </div>
+    <select class="form-input" [ngModel]="state.selectedPortfolioId()" (ngModelChange)="state.setPortfolio($event); loadEntries()">
+      @for (p of portfolios; track p.id) {
+        <option [value]="p.id">{{ p.name }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-row">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+    <select class="form-input form-input-sm" [(ngModel)]="filterAgent">
+      <option value="">All Agents</option>
+      @for (a of agents; track a) {
+        <option [value]="a">{{ a }}</option>
+      }
+    </select>
+    <select class="form-input form-input-sm" [(ngModel)]="filterSeverity">
+      <option value="">All Severity</option>
+      <option value="HIGH">HIGH</option>
+      <option value="MEDIUM">MEDIUM</option>
+      <option value="LOW">LOW</option>
+      <option value="INFO">INFO</option>
+    </select>
+    <span class="filter-count">{{ filtered.length }} entries</span>
+  </div>
+
+  <!-- Timeline -->
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+    </div>
+  } @else {
+    <div class="timeline">
+      @for (entry of filtered; track entry.id; let i = $index) {
+        <div class="timeline-entry glass-card" [style.animation-delay]="(i * 30) + 'ms'">
+          <div class="severity-bar" [ngClass]="getSeverityBarClass(entry.severity)"></div>
+          <div class="entry-body">
+            <div class="entry-header">
+              <div class="entry-left">
+                <div class="entry-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <div class="entry-title-group">
+                  <div class="entry-title-row">
+                    <span class="entry-agent">{{ entry.agentName }}</span>
+                    <span class="status-badge" [ngClass]="getSeverityClass(entry.severity)">{{ entry.severity }}</span>
+                    <span class="status-badge" [ngClass]="getComplianceClass(entry.complianceStatus)">{{ entry.complianceStatus }}</span>
+                  </div>
+                  <span class="entry-meta">{{ entry.action }} • {{ entry.id }}</span>
+                </div>
+              </div>
+              <div class="entry-time">
+                <span class="time-date">{{ entry.timestamp | date:'shortDate' }}</span>
+                <span class="time-hour">{{ entry.timestamp | date:'shortTime' }}</span>
+              </div>
+            </div>
+
+            <p class="entry-desc">{{ entry.description }}</p>
+
+            <div class="entry-details">
+              <div class="detail-panel inner-panel">
+                <span class="label-xs">AI Reasoning</span>
+                <p>{{ entry.reasoning }}</p>
+              </div>
+              <div class="detail-panel inner-panel">
+                <span class="label-xs">Constraint Mapping</span>
+                <p>{{ entry.constraintMapping }}</p>
+              </div>
+              <div class="detail-panel inner-panel">
+                <span class="label-xs">Confidence</span>
+                <div class="confidence-display">
+                  <div class="bar-bg">
+                    <div class="bar-fill" [style.width.%]="entry.confidenceScore * 100" style="background: linear-gradient(90deg, #3b82f6, #10b981)"></div>
+                  </div>
+                  <span class="confidence-val">{{ (entry.confidenceScore * 100) | number:'1.0-0' }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

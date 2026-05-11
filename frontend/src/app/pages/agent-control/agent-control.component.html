@@ -1,0 +1,86 @@
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">AI Agent Control Center</h1>
+      <p class="page-subtitle">Monitor and manage the multi-agent reasoning pipeline</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card glass-card">
+      <span class="label-xs">Active Agents</span>
+      <span class="stat-val text-emerald">{{ activeCount }}/{{ agents.length }}</span>
+    </div>
+    <div class="stat-card glass-card">
+      <span class="label-xs">Avg Confidence</span>
+      <span class="stat-val text-blue">{{ (avgConfidence * 100) | number:'1.0-0' }}%</span>
+    </div>
+    <div class="stat-card glass-card">
+      <span class="label-xs">Total Alerts</span>
+      <span class="stat-val text-amber">{{ totalAlerts }}</span>
+    </div>
+  </div>
+
+  <!-- Agent Cards -->
+  <div class="agents-grid">
+    @for (agent of agents; track agent.agentId) {
+      <div class="agent-card glass-card">
+        <div class="agent-header">
+          <div class="agent-avatar">{{ agent.agentName.charAt(0) }}</div>
+          <div class="agent-title">
+            <span class="agent-name">{{ agent.agentName }}</span>
+            <span class="agent-desc">{{ agent.description }}</span>
+          </div>
+          <span class="status-badge" [ngClass]="getStatusClass(agent.status)">{{ agent.status }}</span>
+        </div>
+        <div class="agent-output">
+          <span class="label-xs">Last Output</span>
+          <p>{{ agent.lastOutput }}</p>
+        </div>
+        <div class="agent-metrics">
+          <div class="metric">
+            <span class="metric-label">Confidence</span>
+            <div class="bar-bg">
+              <div class="bar-fill" [style.width.%]="agent.confidenceScore * 100"
+                   [style.background]="agent.confidenceScore > 0.8 ? '#10b981' : agent.confidenceScore > 0.6 ? '#f59e0b' : '#ef4444'"></div>
+            </div>
+            <span class="metric-val">{{ (agent.confidenceScore * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-item"><span class="metric-label">Alerts:</span> {{ agent.alertCount }}</span>
+            <span class="metric-item"><span class="metric-label">Time:</span> {{ agent.executionTimeMs }}ms</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Reasoning Chain -->
+  @if (explainability) {
+    <div class="glass-card card-section">
+      <h3 class="card-title">Reasoning Chain — {{ explainability.agentName }}</h3>
+      <p class="decision-text">{{ explainability.decision }}</p>
+      <div class="reasoning-chain">
+        @for (step of explainability.reasoningChain; track step.step) {
+          <div class="chain-step">
+            <div class="step-number">{{ step.step }}</div>
+            <div class="step-content">
+              <div class="step-header">
+                <span class="step-agent">{{ step.agent }}</span>
+                <span class="step-action">{{ step.action }}</span>
+              </div>
+              <p class="step-output">{{ step.output }}</p>
+              <div class="step-confidence">
+                <div class="bar-bg bar-sm">
+                  <div class="bar-fill" [style.width.%]="step.confidence * 100" style="background: #3b82f6"></div>
+                </div>
+                <span class="text-xs">{{ (step.confidence * 100) | number:'1.0-0' }}%</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,147 @@
+.page-container { padding: 28px 32px; max-width: 1500px; margin: 0 auto; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; }
+.page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+.header-controls { display: flex; align-items: center; gap: 8px; }
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.comparison-card {
+  padding: 16px;
+}
+
+.comparison-values {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 6px;
+}
+
+.val-before { font-size: 14px; color: var(--text-dim); text-decoration: line-through; }
+.val-after { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+
+.delta {
+  font-size: 11px;
+  font-weight: 600;
+  &.positive { color: #10b981; }
+  &.negative { color: #ef4444; }
+}
+
+.chart-section { padding: 18px; margin-bottom: 16px; }
+.card-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+.chart-box { height: 240px; position: relative; }
+.card-section { padding: 18px; }
+
+// Exec banner
+.exec-banner {
+  display: flex;
+  gap: 14px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), rgba(59, 130, 246, 0.03), transparent);
+  margin-bottom: 16px;
+}
+
+.exec-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: rgba(16, 185, 129, 0.08);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.exec-content {
+  flex: 1;
+  h3 { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+  p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+}
+
+.confidence-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.bar-bg {
+  width: 160px; height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px; overflow: hidden;
+}
+
+.bar-fill { height: 100%; border-radius: 4px; }
+.confidence-val { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+
+// Recommendations
+.recommendations-list { display: flex; flex-direction: column; gap: 10px; }
+
+.rec-card {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  transition: border-color var(--transition);
+
+  &:hover { border-color: rgba(59, 130, 246, 0.1); }
+}
+
+.rec-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.rec-left { display: flex; align-items: center; gap: 10px; }
+.rec-symbol { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.rec-name { font-size: 12px; color: var(--text-dim); }
+.rec-type { font-size: 10px; color: var(--text-dim); background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 5px; }
+
+.rec-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.rec-metric {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 13px; font-weight: 600; color: var(--text-primary);
+}
+
+.text-emerald { color: #10b981; }
+.text-blue { color: #3b82f6; }
+.text-amber { color: #f59e0b; }
+
+.rec-reasoning {
+  p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 4px; }
+}
+
+// Empty/Loading
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 80px 0; color: var(--text-dim);
+}
+
+.empty-title { font-size: 13px; font-weight: 500; margin-top: 14px; color: var(--text-muted); }
+.empty-desc { font-size: 12px; margin-top: 4px; }
+
+.loading-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 0; gap: 12px; color: var(--text-muted); font-size: 13px;
+}
+
+.spinner {
+  width: 24px; height: 24px;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

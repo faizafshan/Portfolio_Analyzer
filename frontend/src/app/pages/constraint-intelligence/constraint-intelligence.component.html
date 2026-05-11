@@ -1,0 +1,93 @@
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Constraint Intelligence</h1>
+      <p class="page-subtitle">AI-powered investment policy parsing — Convert mandates into executable constraints</p>
+    </div>
+    <button class="btn-primary" (click)="parseConstraints()" [disabled]="loading || !policyText.trim()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Parse Constraints
+    </button>
+  </div>
+
+  <!-- Templates -->
+  <div class="templates-row">
+    @for (t of templates; track $index) {
+      <button class="template-btn" (click)="useTemplate($index)">Policy Template {{ $index + 1 }}</button>
+    }
+  </div>
+
+  <!-- Input/Output Grid -->
+  <div class="io-grid">
+    <!-- Input -->
+    <div class="glass-card io-panel">
+      <h3 class="panel-title">Investment Policy Document (Input)</h3>
+      <textarea class="policy-textarea" [(ngModel)]="policyText" placeholder="Enter investment policy text..." rows="8"></textarea>
+      <div class="panel-hint">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span>NLP + RAG constraint extraction pipeline will process this document</span>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="glass-card io-panel">
+      <h3 class="panel-title">Parsed Executable Constraints (Output)</h3>
+      @if (loading) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <span>Analyzing policy document...</span>
+        </div>
+      } @else if (result) {
+        <div class="constraints-output">
+          <div class="constraint-grid">
+            <div class="constraint-item">
+              <span class="label-xs">Risk Profile</span>
+              <span class="constraint-value">{{ result.riskProfile }}</span>
+            </div>
+            <div class="constraint-item">
+              <span class="label-xs">Max Single Stock</span>
+              <span class="constraint-value">{{ result.maxSingleStock }}%</span>
+            </div>
+            <div class="constraint-item">
+              <span class="label-xs">Max Drawdown</span>
+              <span class="constraint-value">{{ result.maxDrawdown }}%</span>
+            </div>
+            <div class="constraint-item">
+              <span class="label-xs">Max Sector</span>
+              <span class="constraint-value">{{ result.maxSectorExposure }}%</span>
+            </div>
+            <div class="constraint-item">
+              <span class="label-xs">ESG Required</span>
+              <span class="constraint-value" [class.text-emerald]="result.esgRequired">{{ result.esgRequired ? 'Yes' : 'No' }}</span>
+            </div>
+            <div class="constraint-item">
+              <span class="label-xs">Confidence</span>
+              <span class="constraint-value text-blue">{{ (result.confidenceScore * 100) | number:'1.0-0' }}%</span>
+            </div>
+          </div>
+
+          @if (result.excludedSectors.length > 0) {
+            <div class="excluded-section">
+              <span class="label-xs">Excluded Sectors</span>
+              <div class="sector-tags">
+                @for (s of result.excludedSectors; track s) {
+                  <span class="sector-tag">{{ s }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="reasoning-section">
+            <span class="label-xs">AI Reasoning</span>
+            <p>{{ result.reasoning }}</p>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span>Click "Parse Constraints" to extract</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
